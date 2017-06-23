@@ -25,8 +25,12 @@ add_library( # Sets the name of the library.
              src/main/cpp/Log.cpp
              src/main/cpp/EventLoop.cpp
              src/main/cpp/Main.cpp
-                src/main/cpp/DroidBlaster.cpp
-                src/main/cpp/GraphicsManager.cpp
+             src/main/cpp/DroidBlaster.cpp
+             src/main/cpp/GraphicsManager.cpp
+             src/main/cpp/Ship.cpp
+             src/main/cpp/TimeManager.cpp
+             src/main/cpp/PhysicsManager.cpp
+             src/main/cpp/Asteroid.cpp
              )
 target_include_directories(droidblaster PRIVATE
                            ${ANDROID_NDK}/sources/android/native_app_glue)

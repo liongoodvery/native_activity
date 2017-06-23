@@ -3,9 +3,26 @@
 
 #include <unistd.h>
 
+static const int32_t SHIP_SIZE = 64;
+static const int32_t ASTEROID_COUNT = 16;
+static const int32_t ASTEROID_SIZE = 64;
+
 DroidBlaster::DroidBlaster(android_app* pApplication) :
-    mEventLoop(pApplication, *this) {
+mTimeManager(),
+        mEventLoop(pApplication, *this),
+        mGraphicsManager(pApplication),
+        mPhysicsManager(mTimeManager,mGraphicsManager),
+        mAsteroids(pApplication,mTimeManager,mGraphicsManager,mPhysicsManager),
+        mShip(pApplication, mGraphicsManager) {
     Log::info("Creating DroidBlaster");
+    GraphicsElement* pElement = mGraphicsManager.registerElement(SHIP_SIZE, SHIP_SIZE);
+    mShip.registerShip(pElement);
+    for (int32_t i = 0; i < ASTEROID_COUNT; ++i) {
+        GraphicsElement* element = mGraphicsManager.registerElement(ASTEROID_SIZE, ASTEROID_SIZE);
+        mAsteroids.registerAsteroid(element->location, ASTEROID_SIZE, ASTEROID_SIZE);
+
+    }
+
 }
 
 void DroidBlaster::run() {
@@ -14,6 +31,11 @@ void DroidBlaster::run() {
 
 status DroidBlaster::onActivate() {
     Log::info("Activating DroidBlaster");
+    if (mGraphicsManager.start()!=STATUS_OK)
+        return STATUS_KO;
+    mAsteroids.initialize();
+    mShip.initialize();
+    mTimeManager.reset();
     return STATUS_OK;
 }
 
@@ -22,10 +44,10 @@ void DroidBlaster::onDeactivate() {
 }
 
 status DroidBlaster::onStep() {
-//    Log::info("Starting step");
-    usleep(300000);
-//    Log::info("Stepping done");
-    return STATUS_OK;
+    mTimeManager.update();
+    mPhysicsManager.update();
+    mAsteroids.update();
+    return mGraphicsManager.update();
 }
 
 void DroidBlaster::onStart() {
